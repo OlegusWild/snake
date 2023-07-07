@@ -30,14 +30,20 @@ def raise_msg(text, color):
     dis.blit(msg, [WIDTH // 3, HEIGHT // 3])
 
 def get_food_coords():
-    food_x = round(random.randint(0, WIDTH-SNAKE_STEP) / SNAKE_STEP, 1) * SNAKE_STEP
-    food_y = round(random.randint(0, HEIGHT-SNAKE_STEP) / SNAKE_STEP, 1) * SNAKE_STEP
+    food_x = round(random.randint(0, WIDTH-SNAKE_STEP) / SNAKE_STEP) * SNAKE_STEP
+    food_y = round(random.randint(0, HEIGHT-SNAKE_STEP) / SNAKE_STEP) * SNAKE_STEP
 
     return food_x, food_y
 
 food_x, food_y = get_food_coords()
 
+def draw_snake(dis, snake_list):
+    for coords in snake_list:
+        pygame.draw.rect(dis, BLACK, [coords[0], coords[1], SNAKE_STEP, SNAKE_STEP])
+
 game_over = False
+snake_len = 1
+snake_list = []
 while not game_over:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -78,10 +84,21 @@ while not game_over:
     elif x < 0 or WIDTH < x + 10 or HEIGHT < y + 10 or y < 0:
         game_over = True
     
+    # shifting the head each stroke ->
+    snake_list.append((x, y))
+    # taking care of the tail
+    if len(snake_list) > snake_len:
+        del snake_list[0]
+
+    if x == food_x and y == food_y:
+        food_x, food_y = get_food_coords()
+        snake_len += 1
+
+    # drawing part
     dis.fill(WHITE)
 
-    pygame.draw.rect(dis, BLACK, [x, y, SNAKE_STEP, SNAKE_STEP])
     pygame.draw.rect(dis, RED, [food_x, food_y, SNAKE_STEP, SNAKE_STEP])
+    draw_snake(dis, snake_list)
     pygame.display.update()
 
     # Screen upd frequency
